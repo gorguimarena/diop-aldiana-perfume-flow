@@ -24,7 +24,7 @@ function VentesPage() {
   const [perfumeId, setPerfumeId] = useState("");
   const [quantity, setQuantity] = useState("1");
   const [unitPrice, setUnitPrice] = useState("");
-  const [payment, setPayment] = useState<string>("especes");
+  const [payment, setPayment] = useState<"wave" | "orange_money" | "especes" | "carte" | "virement">("especes");
   const [customer, setCustomer] = useState("");
   const [saving, setSaving] = useState(false);
 
