@@ -137,7 +137,7 @@ function VentesPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label>Moyen de paiement *</Label>
-                  <Select value={payment} onValueChange={setPayment}>
+                  <Select value={payment} onValueChange={(v) => setPayment(v as typeof payment)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {Object.entries(PAYMENT_LABELS).map(([k, v]) => (
