@@ -82,6 +82,7 @@ function ParfumsPage() {
               </Button>
             </DialogTrigger>
             <PerfumeForm
+              key={editing?.id ?? "new"}
               editing={editing}
               onDone={() => { setOpen(false); setEditing(null); qc.invalidateQueries({ queryKey: ["perfumes"] }); }}
             />

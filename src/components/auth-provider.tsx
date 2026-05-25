@@ -11,6 +11,7 @@ interface AuthCtx {
   role: Role | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const Ctx = createContext<AuthCtx>({} as AuthCtx);
@@ -59,8 +60,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
   };
 
+  const refreshProfile = async () => {
+    const { data: { session: s } } = await supabase.auth.getSession();
+    setSession(s);
+    setUser(s?.user ?? null);
+    const uid = s?.user?.id;
+    if (uid) await fetchExtra(uid);
+  };
+
   return (
-    <Ctx.Provider value={{ user, session, profile, role, loading, signOut }}>
+    <Ctx.Provider value={{ user, session, profile, role, loading, signOut, refreshProfile }}>
       {children}
     </Ctx.Provider>
   );

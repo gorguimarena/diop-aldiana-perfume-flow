@@ -11,7 +11,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_app/mon-profil")({ component: ProfilePage });
 
 function ProfilePage() {
-  const { user, profile, role } = useAuth();
+  const { user, profile, role, refreshProfile } = useAuth();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [savingInfo, setSavingInfo] = useState(false);
@@ -29,19 +29,26 @@ function ProfilePage() {
     e.preventDefault();
     if (!user) return;
     setSavingInfo(true);
+    const trimmedEmail = email.trim();
     const { error: pe } = await supabase
       .from("profiles")
-      .update({ full_name: fullName.trim() })
+      .update({ full_name: fullName.trim(), email: trimmedEmail })
       .eq("id", user.id);
     let emailErr: string | null = null;
-    if (email && email !== user.email) {
-      const { error } = await supabase.auth.updateUser({ email });
+    const emailChanged = trimmedEmail && trimmedEmail !== user.email;
+    if (emailChanged) {
+      const { error } = await supabase.auth.updateUser({ email: trimmedEmail });
       if (error) emailErr = error.message;
     }
     setSavingInfo(false);
     if (pe) return toast.error(pe.message);
     if (emailErr) return toast.error(emailErr);
-    toast.success("Profil mis à jour");
+    await refreshProfile();
+    toast.success(
+      emailChanged
+        ? "Profil mis à jour — confirmez le nouvel email si un message vous a été envoyé."
+        : "Profil mis à jour",
+    );
   };
 
   const onChangePw = async (e: React.FormEvent) => {
