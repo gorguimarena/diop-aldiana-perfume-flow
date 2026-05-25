@@ -8,6 +8,7 @@ import {
   LogOut,
   Sun,
   Moon,
+  UserCog,
 } from "lucide-react";
 import {
   Sidebar,
@@ -31,6 +32,7 @@ const items = [
   { title: "Parfums", url: "/parfums", icon: Sparkles },
   { title: "Ventes", url: "/ventes", icon: ShoppingCart },
   { title: "Historique", url: "/historique", icon: History },
+  { title: "Mon profil", url: "/mon-profil", icon: UserCog },
 ];
 
 const adminItems = [

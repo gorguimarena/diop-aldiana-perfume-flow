@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Sparkles } from "lucide-react";
 
@@ -18,7 +17,6 @@ function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
 
   useEffect(() => {
     if (user) nav({ to: "/dashboard", replace: true });
@@ -32,22 +30,6 @@ function LoginPage() {
     if (error) return toast.error(error.message);
     toast.success("Connexion réussie");
     nav({ to: "/dashboard", replace: true });
-  };
-
-  const onSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: window.location.origin,
-        data: { full_name: fullName },
-      },
-    });
-    setLoading(false);
-    if (error) return toast.error(error.message);
-    toast.success("Compte créé. Vous pouvez vous connecter.");
   };
 
   return (
@@ -70,55 +52,26 @@ function LoginPage() {
 
         <Card className="border-border/60 backdrop-blur">
           <CardHeader>
-            <CardTitle className="font-display text-2xl">Bienvenue</CardTitle>
-            <CardDescription>Connectez-vous ou créez votre compte vendeur</CardDescription>
+            <CardTitle className="font-display text-2xl">Connexion</CardTitle>
+            <CardDescription>Accès réservé au personnel autorisé</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="login">
-              <TabsList className="grid grid-cols-2 mb-6 w-full">
-                <TabsTrigger value="login">Connexion</TabsTrigger>
-                <TabsTrigger value="signup">Inscription</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="login">
-                <form onSubmit={onLogin} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Mot de passe</Label>
-                    <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
-                  </div>
-                  <Button type="submit" disabled={loading} className="w-full bg-gradient-gold text-primary-foreground hover:opacity-90">
-                    {loading ? "Connexion…" : "Se connecter"}
-                  </Button>
-                </form>
-              </TabsContent>
-
-              <TabsContent value="signup">
-                <form onSubmit={onSignup} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="fn">Nom complet</Label>
-                    <Input id="fn" required value={fullName} onChange={(e) => setFullName(e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email2">Email</Label>
-                    <Input id="email2" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="pw2">Mot de passe (min 8 caractères)</Label>
-                    <Input id="pw2" type="password" minLength={8} required value={password} onChange={(e) => setPassword(e.target.value)} />
-                  </div>
-                  <Button type="submit" disabled={loading} className="w-full bg-gradient-gold text-primary-foreground hover:opacity-90">
-                    {loading ? "Création…" : "Créer mon compte"}
-                  </Button>
-                  <p className="text-xs text-muted-foreground text-center">
-                    Le premier compte créé devient automatiquement administrateur.
-                  </p>
-                </form>
-              </TabsContent>
-            </Tabs>
+            <form onSubmit={onLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Mot de passe</Label>
+                <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+              </div>
+              <Button type="submit" disabled={loading} className="w-full bg-gradient-gold text-primary-foreground hover:opacity-90">
+                {loading ? "Connexion…" : "Se connecter"}
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                Vous n'avez pas de compte ? Contactez votre administrateur.
+              </p>
+            </form>
           </CardContent>
         </Card>
 
