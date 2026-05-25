@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppVentesRouteImport } from './routes/_app/ventes'
 import { Route as AppUtilisateursRouteImport } from './routes/_app/utilisateurs'
 import { Route as AppParfumsRouteImport } from './routes/_app/parfums'
+import { Route as AppMonProfilRouteImport } from './routes/_app/mon-profil'
 import { Route as AppHistoriqueRouteImport } from './routes/_app/historique'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 
@@ -47,6 +48,11 @@ const AppParfumsRoute = AppParfumsRouteImport.update({
   path: '/parfums',
   getParentRoute: () => AppRoute,
 } as any)
+const AppMonProfilRoute = AppMonProfilRouteImport.update({
+  id: '/mon-profil',
+  path: '/mon-profil',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppHistoriqueRoute = AppHistoriqueRouteImport.update({
   id: '/historique',
   path: '/historique',
@@ -63,6 +69,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/dashboard': typeof AppDashboardRoute
   '/historique': typeof AppHistoriqueRoute
+  '/mon-profil': typeof AppMonProfilRoute
   '/parfums': typeof AppParfumsRoute
   '/utilisateurs': typeof AppUtilisateursRoute
   '/ventes': typeof AppVentesRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/dashboard': typeof AppDashboardRoute
   '/historique': typeof AppHistoriqueRoute
+  '/mon-profil': typeof AppMonProfilRoute
   '/parfums': typeof AppParfumsRoute
   '/utilisateurs': typeof AppUtilisateursRoute
   '/ventes': typeof AppVentesRoute
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/historique': typeof AppHistoriqueRoute
+  '/_app/mon-profil': typeof AppMonProfilRoute
   '/_app/parfums': typeof AppParfumsRoute
   '/_app/utilisateurs': typeof AppUtilisateursRoute
   '/_app/ventes': typeof AppVentesRoute
@@ -94,6 +103,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/dashboard'
     | '/historique'
+    | '/mon-profil'
     | '/parfums'
     | '/utilisateurs'
     | '/ventes'
@@ -103,6 +113,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/dashboard'
     | '/historique'
+    | '/mon-profil'
     | '/parfums'
     | '/utilisateurs'
     | '/ventes'
@@ -113,6 +124,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/_app/dashboard'
     | '/_app/historique'
+    | '/_app/mon-profil'
     | '/_app/parfums'
     | '/_app/utilisateurs'
     | '/_app/ventes'
@@ -168,6 +180,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppParfumsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/mon-profil': {
+      id: '/_app/mon-profil'
+      path: '/mon-profil'
+      fullPath: '/mon-profil'
+      preLoaderRoute: typeof AppMonProfilRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/historique': {
       id: '/_app/historique'
       path: '/historique'
@@ -188,6 +207,7 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppHistoriqueRoute: typeof AppHistoriqueRoute
+  AppMonProfilRoute: typeof AppMonProfilRoute
   AppParfumsRoute: typeof AppParfumsRoute
   AppUtilisateursRoute: typeof AppUtilisateursRoute
   AppVentesRoute: typeof AppVentesRoute
@@ -196,6 +216,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppHistoriqueRoute: AppHistoriqueRoute,
+  AppMonProfilRoute: AppMonProfilRoute,
   AppParfumsRoute: AppParfumsRoute,
   AppUtilisateursRoute: AppUtilisateursRoute,
   AppVentesRoute: AppVentesRoute,
