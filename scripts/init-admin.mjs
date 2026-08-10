@@ -15,6 +15,7 @@
  *   3. Lui attribue le rôle "admin"
  */
 import { createClient } from "@supabase/supabase-js";
+import ws from "ws";
 
 const [, , emailArg, passwordArg, ...nameParts] = process.argv;
 const fullName = nameParts.join(" ").trim() || "Administrateur";
@@ -33,6 +34,7 @@ if (!url || !key) {
 
 const admin = createClient(url, key, {
   auth: { persistSession: false, autoRefreshToken: false },
+  realtime: { transport: ws },
 });
 
 async function main() {

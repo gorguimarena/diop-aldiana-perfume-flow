@@ -1,0 +1,48 @@
+# Ping Supabase periodically so free-tier projects are not paused for inactivity.
+name: Supabase Keepalive
+
+on:
+  schedule:
+    # Every day at 06:00 UTC
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    environment: Production
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping Supabase REST API
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${SUPABASE_URL:-}" ] || [ -z "${SUPABASE_KEY:-}" ]; then
+            echo "Missing secrets: SUPABASE_URL and/or SUPABASE_PUBLISHABLE_KEY"
+            echo "Add them in GitHub → Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+
+          # Lightweight authenticated request (select 0 rows from profiles).
+          # Any successful Auth/REST hit counts as activity for pause prevention.
+          status=$(curl -sS -o /tmp/supabase-keepalive.body -w "%{http_code}" \
+            -H "apikey: ${SUPABASE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_KEY}" \
+            -H "Prefer: count=exact" \
+            -H "Range: 0-0" \
+            "${SUPABASE_URL%/}/rest/v1/profiles?select=id&limit=1")
+
+          echo "HTTP status: ${status}"
+          head -c 500 /tmp/supabase-keepalive.body || true
+          echo
+
+          case "${status}" in
+            200|206) echo "✓ Supabase keepalive OK" ;;
+            *)
+              echo "✗ Unexpected response from Supabase"
+              exit 1
+              ;;
+          esac
