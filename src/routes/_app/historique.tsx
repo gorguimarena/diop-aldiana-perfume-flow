@@ -13,7 +13,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Download, FileSpreadsheet, FileText, Printer } from "lucide-react";
+import { FileSpreadsheet, Printer } from "lucide-react";
 import { fDate, fXOF, PAYMENT_LABELS } from "@/lib/format";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -27,6 +27,8 @@ type Sale = {
   total: number; profit: number; payment_method: string;
   seller_id: string; seller_name: string | null; customer_name: string | null;
   created_at: string;
+  promo_name: string | null;
+  promo_group_id: string | null;
 };
 
 function HistoriquePage() {
@@ -72,6 +74,7 @@ function HistoriquePage() {
     const rows = filtered.map((s) => ({
       Date: fDate(s.created_at),
       Parfum: s.perfume_name,
+      Promo: s.promo_name ?? "",
       Quantité: s.quantity,
       "Prix unitaire": Number(s.unit_price),
       Total: Number(s.total),
@@ -101,6 +104,7 @@ function HistoriquePage() {
     doc.setFontSize(11);
     doc.text(`Vendeur : ${s.seller_name ?? "—"}`, 14, 45);
     if (s.customer_name) doc.text(`Client : ${s.customer_name}`, 14, 52);
+    if (s.promo_name) doc.text(`Promo : ${s.promo_name}`, 14, s.customer_name ? 59 : 52);
 
     autoTable(doc, {
       startY: 65,
@@ -171,6 +175,7 @@ function HistoriquePage() {
               <TableRow>
                 <TableHead>Date</TableHead>
                 <TableHead>Parfum</TableHead>
+                <TableHead>Promo</TableHead>
                 <TableHead className="text-right">Qté</TableHead>
                 <TableHead className="text-right">Total</TableHead>
                 <TableHead className="text-right">Bénéfice</TableHead>
@@ -182,11 +187,20 @@ function HistoriquePage() {
             </TableHeader>
             <TableBody>
               {filtered.length === 0 ? (
-                <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-10">Aucune vente</TableCell></TableRow>
+                <TableRow><TableCell colSpan={10} className="text-center text-muted-foreground py-10">Aucune vente</TableCell></TableRow>
               ) : filtered.map((s) => (
                 <TableRow key={s.id}>
                   <TableCell className="whitespace-nowrap text-xs">{fDate(s.created_at)}</TableCell>
                   <TableCell className="font-medium">{s.perfume_name}</TableCell>
+                  <TableCell>
+                    {s.promo_name ? (
+                      <Badge className="bg-gold/20 text-gold border-gold/30 text-[10px] max-w-[140px] truncate" title={s.promo_name}>
+                        {s.promo_name}
+                      </Badge>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
                   <TableCell className="text-right">{s.quantity}</TableCell>
                   <TableCell className="text-right font-medium">{fXOF(s.total)}</TableCell>
                   <TableCell className="text-right text-success">{fXOF(s.profit)}</TableCell>

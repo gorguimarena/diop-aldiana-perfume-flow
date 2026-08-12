@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -22,15 +22,23 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Search, Pencil, Trash2, AlertTriangle, PackageX } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
+import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "sonner";
 import { fXOF, CATEGORY_LABELS } from "@/lib/format";
 
 export const Route = createFileRoute("/_app/parfums")({ component: ParfumsPage });
 
 type Perfume = {
-  id: string; name: string; category: "homme" | "femme" | "mixte";
-  description: string | null; stock_quantity: number;
-  purchase_price: number; selling_price: number; low_stock_threshold: number;
+  id: string;
+  name: string;
+  category: "homme" | "femme" | "mixte";
+  description: string | null;
+  stock_quantity: number;
+  purchase_price: number;
+  selling_price: number;
+  low_stock_threshold: number;
+  volume_ml: number | null;
+  image_url: string | null;
 };
 
 function ParfumsPage() {
@@ -38,7 +46,9 @@ function ParfumsPage() {
   const isAdmin = role === "admin";
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"all" | "low" | "out">("all");
+  const [stockFilter, setStockFilter] = useState<"all" | "low" | "out">("all");
+  const [categoryFilter, setCategoryFilter] = useState<"all" | Perfume["category"]>("all");
+  const [volumeFilter, setVolumeFilter] = useState<"all" | "20" | "30" | "other">("all");
   const [editing, setEditing] = useState<Perfume | null>(null);
   const [open, setOpen] = useState(false);
 
@@ -51,12 +61,16 @@ function ParfumsPage() {
     },
   });
 
-  const filtered = list.filter((p) => {
+  const filtered = useMemo(() => list.filter((p) => {
     if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
-    if (filter === "out" && p.stock_quantity > 0) return false;
-    if (filter === "low" && !(p.stock_quantity > 0 && p.stock_quantity <= p.low_stock_threshold)) return false;
+    if (categoryFilter !== "all" && p.category !== categoryFilter) return false;
+    if (volumeFilter === "20" && p.volume_ml !== 20) return false;
+    if (volumeFilter === "30" && p.volume_ml !== 30) return false;
+    if (volumeFilter === "other" && (p.volume_ml === 20 || p.volume_ml === 30 || p.volume_ml == null)) return false;
+    if (stockFilter === "out" && p.stock_quantity > 0) return false;
+    if (stockFilter === "low" && !(p.stock_quantity > 0 && p.stock_quantity <= p.low_stock_threshold)) return false;
     return true;
-  });
+  }), [list, search, categoryFilter, volumeFilter, stockFilter]);
 
   const del = useMutation({
     mutationFn: async (id: string) => {
@@ -71,8 +85,10 @@ function ParfumsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-4xl text-gradient-gold">Parfums</h1>
-          <p className="text-muted-foreground text-sm mt-1">{list.length} références au catalogue</p>
+          <h1 className="font-display text-4xl text-gradient-gold">Catalogue</h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            {filtered.length} / {list.length} références
+          </p>
         </div>
         {isAdmin && (
           <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null); }}>
@@ -95,7 +111,25 @@ function ParfumsPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Rechercher un parfum…" value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
         </div>
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as typeof filter)}>
+        <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v as typeof categoryFilter)}>
+          <SelectTrigger className="w-[140px]"><SelectValue placeholder="Catégorie" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Toutes catégories</SelectItem>
+            <SelectItem value="homme">Homme</SelectItem>
+            <SelectItem value="femme">Femme</SelectItem>
+            <SelectItem value="mixte">Mixte</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={volumeFilter} onValueChange={(v) => setVolumeFilter(v as typeof volumeFilter)}>
+          <SelectTrigger className="w-[130px]"><SelectValue placeholder="Volume" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tous volumes</SelectItem>
+            <SelectItem value="20">20 ml</SelectItem>
+            <SelectItem value="30">30 ml</SelectItem>
+            <SelectItem value="other">Autre</SelectItem>
+          </SelectContent>
+        </Select>
+        <Tabs value={stockFilter} onValueChange={(v) => setStockFilter(v as typeof stockFilter)}>
           <TabsList>
             <TabsTrigger value="all">Tous</TabsTrigger>
             <TabsTrigger value="low">Stock faible</TabsTrigger>
@@ -114,14 +148,28 @@ function ParfumsPage() {
             const low = p.stock_quantity > 0 && p.stock_quantity <= p.low_stock_threshold;
             const out = p.stock_quantity === 0;
             return (
-              <Card key={p.id} className="hover:border-gold/40 transition-colors">
-                <CardContent className="pt-6">
+              <Card key={p.id} className="overflow-hidden hover:border-gold/40 transition-colors">
+                <div className="aspect-[16/10] bg-muted/40 overflow-hidden">
+                  {p.image_url ? (
+                    <img src={p.image_url} alt={p.name} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center text-xs text-muted-foreground">
+                      Sans image
+                    </div>
+                  )}
+                </div>
+                <CardContent className="pt-4">
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="min-w-0">
                       <h3 className="font-display text-xl truncate">{p.name}</h3>
-                      <Badge variant="secondary" className="mt-1 text-[10px] uppercase tracking-wider">
-                        {CATEGORY_LABELS[p.category]}
-                      </Badge>
+                      <div className="flex flex-wrap gap-1.5 mt-1">
+                        <Badge variant="secondary" className="text-[10px] uppercase tracking-wider">
+                          {CATEGORY_LABELS[p.category]}
+                        </Badge>
+                        {p.volume_ml != null && (
+                          <Badge variant="outline" className="text-[10px]">{p.volume_ml} ml</Badge>
+                        )}
+                      </div>
                     </div>
                     {out ? (
                       <Badge variant="destructive" className="gap-1"><PackageX className="h-3 w-3" />Rupture</Badge>
@@ -187,12 +235,19 @@ function PerfumeForm({ editing, onDone }: { editing: Perfume | null; onDone: () 
   const [purchase, setPurchase] = useState(String(editing?.purchase_price ?? 0));
   const [selling, setSelling] = useState(String(editing?.selling_price ?? 0));
   const [threshold, setThreshold] = useState(String(editing?.low_stock_threshold ?? 5));
+  const [volume, setVolume] = useState(editing?.volume_ml != null ? String(editing.volume_ml) : "");
+  const [imageUrl, setImageUrl] = useState<string | null>(editing?.image_url ?? null);
   const [description, setDescription] = useState(editing?.description ?? "");
   const [saving, setSaving] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    const volumeMl = volume.trim() === "" ? null : parseInt(volume, 10);
+    if (volumeMl != null && (!Number.isFinite(volumeMl) || volumeMl <= 0)) {
+      setSaving(false);
+      return toast.error("Volume invalide");
+    }
     const payload = {
       name: name.trim(),
       category,
@@ -200,6 +255,8 @@ function PerfumeForm({ editing, onDone }: { editing: Perfume | null; onDone: () 
       purchase_price: parseFloat(purchase) || 0,
       selling_price: parseFloat(selling) || 0,
       low_stock_threshold: parseInt(threshold) || 5,
+      volume_ml: volumeMl,
+      image_url: imageUrl,
       description: description.trim() || null,
     };
     const { error } = editing
@@ -212,11 +269,12 @@ function PerfumeForm({ editing, onDone }: { editing: Perfume | null; onDone: () 
   };
 
   return (
-    <DialogContent className="max-w-lg">
+    <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
       <DialogHeader>
         <DialogTitle className="font-display text-2xl">{editing ? "Modifier le parfum" : "Nouveau parfum"}</DialogTitle>
       </DialogHeader>
       <form onSubmit={submit} className="space-y-4">
+        <ImageUpload value={imageUrl} onChange={setImageUrl} />
         <div className="space-y-2">
           <Label>Nom *</Label>
           <Input required value={name} onChange={(e) => setName(e.target.value)} />
@@ -234,8 +292,18 @@ function PerfumeForm({ editing, onDone }: { editing: Perfume | null; onDone: () 
             </Select>
           </div>
           <div className="space-y-2">
+            <Label>Volume (ml)</Label>
+            <Input type="number" min="1" placeholder="20 ou 30" value={volume} onChange={(e) => setVolume(e.target.value)} />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-2">
             <Label>Quantité en stock</Label>
             <Input type="number" min="0" value={stock} onChange={(e) => setStock(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label>Seuil stock faible</Label>
+            <Input type="number" min="0" value={threshold} onChange={(e) => setThreshold(e.target.value)} />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -247,10 +315,6 @@ function PerfumeForm({ editing, onDone }: { editing: Perfume | null; onDone: () 
             <Label>Prix de vente (FCFA)</Label>
             <Input type="number" min="0" step="100" value={selling} onChange={(e) => setSelling(e.target.value)} />
           </div>
-        </div>
-        <div className="space-y-2">
-          <Label>Seuil d'alerte stock faible</Label>
-          <Input type="number" min="0" value={threshold} onChange={(e) => setThreshold(e.target.value)} />
         </div>
         <div className="space-y-2">
           <Label>Description (optionnel)</Label>

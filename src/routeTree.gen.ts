@@ -14,10 +14,12 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppVentesRouteImport } from './routes/_app/ventes'
 import { Route as AppUtilisateursRouteImport } from './routes/_app/utilisateurs'
+import { Route as AppPromotionsRouteImport } from './routes/_app/promotions'
 import { Route as AppParfumsRouteImport } from './routes/_app/parfums'
 import { Route as AppMonProfilRouteImport } from './routes/_app/mon-profil'
 import { Route as AppHistoriqueRouteImport } from './routes/_app/historique'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppCommandesRouteImport } from './routes/_app/commandes'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -43,6 +45,11 @@ const AppUtilisateursRoute = AppUtilisateursRouteImport.update({
   path: '/utilisateurs',
   getParentRoute: () => AppRoute,
 } as any)
+const AppPromotionsRoute = AppPromotionsRouteImport.update({
+  id: '/promotions',
+  path: '/promotions',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppParfumsRoute = AppParfumsRouteImport.update({
   id: '/parfums',
   path: '/parfums',
@@ -63,24 +70,33 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
+const AppCommandesRoute = AppCommandesRouteImport.update({
+  id: '/commandes',
+  path: '/commandes',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/commandes': typeof AppCommandesRoute
   '/dashboard': typeof AppDashboardRoute
   '/historique': typeof AppHistoriqueRoute
   '/mon-profil': typeof AppMonProfilRoute
   '/parfums': typeof AppParfumsRoute
+  '/promotions': typeof AppPromotionsRoute
   '/utilisateurs': typeof AppUtilisateursRoute
   '/ventes': typeof AppVentesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/commandes': typeof AppCommandesRoute
   '/dashboard': typeof AppDashboardRoute
   '/historique': typeof AppHistoriqueRoute
   '/mon-profil': typeof AppMonProfilRoute
   '/parfums': typeof AppParfumsRoute
+  '/promotions': typeof AppPromotionsRoute
   '/utilisateurs': typeof AppUtilisateursRoute
   '/ventes': typeof AppVentesRoute
 }
@@ -89,10 +105,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/_app/commandes': typeof AppCommandesRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/historique': typeof AppHistoriqueRoute
   '/_app/mon-profil': typeof AppMonProfilRoute
   '/_app/parfums': typeof AppParfumsRoute
+  '/_app/promotions': typeof AppPromotionsRoute
   '/_app/utilisateurs': typeof AppUtilisateursRoute
   '/_app/ventes': typeof AppVentesRoute
 }
@@ -101,20 +119,24 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/commandes'
     | '/dashboard'
     | '/historique'
     | '/mon-profil'
     | '/parfums'
+    | '/promotions'
     | '/utilisateurs'
     | '/ventes'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
+    | '/commandes'
     | '/dashboard'
     | '/historique'
     | '/mon-profil'
     | '/parfums'
+    | '/promotions'
     | '/utilisateurs'
     | '/ventes'
   id:
@@ -122,10 +144,12 @@ export interface FileRouteTypes {
     | '/'
     | '/_app'
     | '/login'
+    | '/_app/commandes'
     | '/_app/dashboard'
     | '/_app/historique'
     | '/_app/mon-profil'
     | '/_app/parfums'
+    | '/_app/promotions'
     | '/_app/utilisateurs'
     | '/_app/ventes'
   fileRoutesById: FileRoutesById
@@ -173,6 +197,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppUtilisateursRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/promotions': {
+      id: '/_app/promotions'
+      path: '/promotions'
+      fullPath: '/promotions'
+      preLoaderRoute: typeof AppPromotionsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/parfums': {
       id: '/_app/parfums'
       path: '/parfums'
@@ -201,23 +232,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/commandes': {
+      id: '/_app/commandes'
+      path: '/commandes'
+      fullPath: '/commandes'
+      preLoaderRoute: typeof AppCommandesRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppCommandesRoute: typeof AppCommandesRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppHistoriqueRoute: typeof AppHistoriqueRoute
   AppMonProfilRoute: typeof AppMonProfilRoute
   AppParfumsRoute: typeof AppParfumsRoute
+  AppPromotionsRoute: typeof AppPromotionsRoute
   AppUtilisateursRoute: typeof AppUtilisateursRoute
   AppVentesRoute: typeof AppVentesRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppCommandesRoute: AppCommandesRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppHistoriqueRoute: AppHistoriqueRoute,
   AppMonProfilRoute: AppMonProfilRoute,
   AppParfumsRoute: AppParfumsRoute,
+  AppPromotionsRoute: AppPromotionsRoute,
   AppUtilisateursRoute: AppUtilisateursRoute,
   AppVentesRoute: AppVentesRoute,
 }

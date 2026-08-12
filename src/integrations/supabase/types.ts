@@ -27,6 +27,7 @@ export type Database = {
           selling_price: number
           stock_quantity: number
           updated_at: string
+          volume_ml: number | null
         }
         Insert: {
           category?: Database["public"]["Enums"]["perfume_category"]
@@ -40,6 +41,7 @@ export type Database = {
           selling_price?: number
           stock_quantity?: number
           updated_at?: string
+          volume_ml?: number | null
         }
         Update: {
           category?: Database["public"]["Enums"]["perfume_category"]
@@ -53,6 +55,46 @@ export type Database = {
           selling_price?: number
           stock_quantity?: number
           updated_at?: string
+          volume_ml?: number | null
+        }
+        Relationships: []
+      }
+      promotions: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name: string
+          price: number
+          quantity_required: number
+          updated_at: string
+          volume_ml: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name: string
+          price?: number
+          quantity_required: number
+          updated_at?: string
+          volume_ml: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          price?: number
+          quantity_required?: number
+          updated_at?: string
+          volume_ml?: number
         }
         Relationships: []
       }
@@ -92,6 +134,9 @@ export type Database = {
           perfume_id: string
           perfume_name: string
           profit: number
+          promo_group_id: string | null
+          promo_id: string | null
+          promo_name: string | null
           quantity: number
           seller_id: string
           seller_name: string | null
@@ -107,6 +152,9 @@ export type Database = {
           perfume_id: string
           perfume_name: string
           profit?: number
+          promo_group_id?: string | null
+          promo_id?: string | null
+          promo_name?: string | null
           quantity: number
           seller_id: string
           seller_name?: string | null
@@ -122,6 +170,9 @@ export type Database = {
           perfume_id?: string
           perfume_name?: string
           profit?: number
+          promo_group_id?: string | null
+          promo_id?: string | null
+          promo_name?: string | null
           quantity?: number
           seller_id?: string
           seller_name?: string | null
@@ -135,6 +186,107 @@ export type Database = {
             columns: ["perfume_id"]
             isOneToOne: false
             referencedRelation: "perfumes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_promo_id_fkey"
+            columns: ["promo_id"]
+            isOneToOne: false
+            referencedRelation: "promotions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guest_orders: {
+        Row: {
+          created_at: string
+          customer_name: string
+          customer_phone: string
+          id: string
+          notes: string | null
+          status: "pending" | "confirmed" | "cancelled"
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_name: string
+          customer_phone: string
+          id?: string
+          notes?: string | null
+          status?: "pending" | "confirmed" | "cancelled"
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_name?: string
+          customer_phone?: string
+          id?: string
+          notes?: string | null
+          status?: "pending" | "confirmed" | "cancelled"
+          total?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      guest_order_items: {
+        Row: {
+          id: string
+          order_id: string
+          perfume_id: string | null
+          perfume_name: string
+          promo_id: string | null
+          promo_name: string | null
+          quantity: number
+          unit_price: number
+          total: number
+          volume_ml: number | null
+        }
+        Insert: {
+          id?: string
+          order_id: string
+          perfume_id?: string | null
+          perfume_name: string
+          promo_id?: string | null
+          promo_name?: string | null
+          quantity: number
+          unit_price: number
+          total: number
+          volume_ml?: number | null
+        }
+        Update: {
+          id?: string
+          order_id?: string
+          perfume_id?: string | null
+          perfume_name?: string
+          promo_id?: string | null
+          promo_name?: string | null
+          quantity?: number
+          unit_price?: number
+          total?: number
+          volume_ml?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "guest_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guest_order_items_perfume_id_fkey"
+            columns: ["perfume_id"]
+            isOneToOne: false
+            referencedRelation: "perfumes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guest_order_items_promo_id_fkey"
+            columns: ["promo_id"]
+            isOneToOne: false
+            referencedRelation: "promotions"
             referencedColumns: ["id"]
           },
         ]
@@ -175,6 +327,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "vendeur"
+      guest_order_status: "pending" | "confirmed" | "cancelled"
       payment_method: "wave" | "orange_money" | "especes" | "carte" | "virement"
       perfume_category: "homme" | "femme" | "mixte"
     }
@@ -305,6 +458,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "vendeur"],
+      guest_order_status: ["pending", "confirmed", "cancelled"],
       payment_method: ["wave", "orange_money", "especes", "carte", "virement"],
       perfume_category: ["homme", "femme", "mixte"],
     },

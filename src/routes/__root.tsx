@@ -8,6 +8,7 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/components/auth-provider";
+import { CartProvider } from "@/components/cart-provider";
 
 import appCss from "../styles.css?url";
 
@@ -52,10 +53,12 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <TooltipProvider>
-          <Outlet />
-          <Toaster richColors position="top-right" />
-        </TooltipProvider>
+        <CartProvider>
+          <TooltipProvider>
+            <Outlet />
+            <Toaster richColors position="top-right" />
+          </TooltipProvider>
+        </CartProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

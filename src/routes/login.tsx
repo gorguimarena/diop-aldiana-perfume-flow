@@ -47,7 +47,7 @@ function LoginPage() {
             <Sparkles className="h-6 w-6 text-gold" />
           </div>
           <h1 className="font-display text-5xl md:text-6xl text-gradient-gold">Diop Aldiana</h1>
-          <p className="mt-3 text-sm text-muted-foreground">Gestion de stock & de ventes</p>
+          <p className="mt-3 text-sm text-muted-foreground">Espace personnel — stock & ventes</p>
         </div>
 
         <Card className="border-border/60 backdrop-blur">
@@ -76,7 +76,7 @@ function LoginPage() {
         </Card>
 
         <p className="text-center text-xs text-muted-foreground mt-6">
-          <Link to="/" className="hover:text-gold">← Retour</Link>
+          <Link to="/" className="hover:text-gold">← Retour au catalogue</Link>
         </p>
       </div>
     </div>

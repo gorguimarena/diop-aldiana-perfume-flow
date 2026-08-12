@@ -9,6 +9,8 @@ import {
   Sun,
   Moon,
   UserCog,
+  Tag,
+  ClipboardList,
 } from "lucide-react";
 import {
   Sidebar,
@@ -29,13 +31,15 @@ import { useEffect, useState } from "react";
 
 const items = [
   { title: "Tableau de bord", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Parfums", url: "/parfums", icon: Sparkles },
+  { title: "Stock parfums", url: "/parfums", icon: Sparkles },
   { title: "Ventes", url: "/ventes", icon: ShoppingCart },
+  { title: "Commandes", url: "/commandes", icon: ClipboardList },
   { title: "Historique", url: "/historique", icon: History },
   { title: "Mon profil", url: "/mon-profil", icon: UserCog },
 ];
 
 const adminItems = [
+  { title: "Promotions", url: "/promotions", icon: Tag },
   { title: "Utilisateurs", url: "/utilisateurs", icon: Users },
 ];
 
@@ -123,6 +127,9 @@ export function AppSidebar() {
           <div className="px-2 py-2 text-xs">
             <div className="font-medium truncate">{profile?.full_name ?? profile?.email}</div>
             <div className="text-muted-foreground uppercase tracking-wider text-[10px] mt-0.5">{role}</div>
+            <Link to="/" className="text-gold hover:underline text-[11px] mt-1 inline-block">
+              Voir le catalogue public
+            </Link>
           </div>
         )}
         <div className="flex gap-1 px-1 pb-2">
